@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 
 import '../models/DataModel.dart';
 import '../reuseables/asset_chart.dart';
+import '../reuseables/resuable_text.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class _HomeState extends State<Home> {
   int selectedState = 0;
   final Color dark = const Color(0xff602bfa);
   final Color normal = const Color(0xff64caad);
-  final Color light = const Color(0x03602bf8);
+  final Color light = const Color(0xfff2f2ff);
   int countX = 0;
 
   List<BarChartGroupData> barLga = [];
@@ -32,7 +33,7 @@ class _HomeState extends State<Home> {
     List<dynamic> list = json.decode(response);
     _data =
         list.map((e) => DataModel.fromJson(e as Map<String, dynamic>)).toList();
-    _data.sort((a, b) => a.lga!.compareTo(b.lga!));
+    _data.sort((a, b) => b.lga!.compareTo(a.lga!));
     int count = 0;
     double countRodValue = 0;
     String currentLga = "";
@@ -40,7 +41,6 @@ class _HomeState extends State<Home> {
       if (i.lga == currentLga || count == 0) {
         countRodValue++;
       } else {
-        print("Print ************* $currentLga************** $countRodValue");
         BarChartRodData rod = BarChartRodData(
           toY: 10000,
           rodStackItems: [
@@ -49,7 +49,9 @@ class _HomeState extends State<Home> {
           ],
           borderRadius: BorderRadius.zero,
         );
-        barLga.add(BarChartGroupData(x: 0, barsSpace: 4, barRods: [rod]));
+        barLga.add(
+          BarChartGroupData(x: barLga.length, barsSpace: 4, barRods: [rod]),
+        );
         barLgaLegend.add(currentLga);
         countRodValue++;
       }
@@ -81,78 +83,113 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       body: ListView(
+        padding: const EdgeInsets.all(12.0),
         children: [
           AssetChat(
-            legendText: "TOTAL NUMBER OF WIDOWS REGISTERED",
-            countText: "${_data.length}",
+            legendText: const CustomText(
+              text: "TOTAL NUMBER OF WIDOWS REGISTERED",
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            countText: CustomText(
+              text: "${_data.length}",
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 30,
+                letterSpacing: -1.0,
+              ),
+              padding: EdgeInsets.only(bottom: ch / 4),
+            ),
             iconPath: "assets/icons/people_icons.png",
           ),
           AssetChat(
-            legendText: "SELECT LOCAL GOVERNMENT",
-            countText: "$selectedState",
+            legendText: const CustomText(
+              text: "SELECT LOCAL GOVERNMENT",
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            countText: CustomText(
+              text: "$selectedState",
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 30,
+                letterSpacing: -1.0,
+              ),
+              padding: EdgeInsets.only(bottom: ch / 4),
+            ),
             iconPath: "assets/icons/healthy_community.png",
           ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: RotatedBox(
-              quarterTurns: 1,
-              child: Material(
-                elevation: 10,
-                borderRadius: BorderRadius.circular(12.0),
-                child: AspectRatio(
-                  aspectRatio: 0.8,
+          Material(
+            elevation: 10,
+            borderRadius: BorderRadius.circular(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CustomText(
+                  text: "WIDOWS REGISTERED BY LOCAL GOVERNMENT",
+                  padding: EdgeInsets.only(top: 34, right: 16, left: 16),
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                SizedBox(
+                  width: width.toDouble(),
+                  height: 350,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.center,
-                        barTouchData: BarTouchData(
-                          enabled: false,
-                        ),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 10000 / 17,
-                              reservedSize: 85,
-                              getTitlesWidget: bottomTitles,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
+                    child: RotatedBox(
+                      quarterTurns: 1,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.center,
+                          barTouchData: BarTouchData(
+                            enabled: false,
+                          ),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                interval: 10000 / 17,
+                                reservedSize: 85,
+                                getTitlesWidget: bottomTitles,
+                              ),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                interval: 1500,
+                                getTitlesWidget: leftTitles,
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
-                          rightTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: leftTitles,
+                          gridData: FlGridData(
+                            show: false,
+                            checkToShowHorizontalLine: (value) =>
+                                value % 10 == 0,
+                            getDrawingHorizontalLine: (value) => FlLine(
+                              color: const Color(0xffe7e8ec),
+                              strokeWidth: 1,
                             ),
+                            drawVerticalLine: false,
                           ),
-                          topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
+                          borderData: FlBorderData(
+                            show: false,
                           ),
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
+                          groupsSpace: 8,
+                          barGroups: barLga,
                         ),
-                        gridData: FlGridData(
-                          show: false,
-                          checkToShowHorizontalLine: (value) =>
-                              value % 10 == 0,
-                          getDrawingHorizontalLine: (value) => FlLine(
-                            color: const Color(0xffe7e8ec),
-                            strokeWidth: 1,
-                          ),
-                          drawVerticalLine: false,
-                        ),
-                        borderData: FlBorderData(
-                          show: false,
-                        ),
-                        groupsSpace: 4,
-                        barGroups: barLga,
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -181,11 +218,19 @@ class _HomeState extends State<Home> {
     );
     return SideTitleWidget(
       angle: 98.96,
-      space: 0.0,
+      space: 15,
       axisSide: meta.axisSide,
-      child: Text(
-        "${value.toString()} - ",
-        style: style,
+      child: Column(
+        children: [
+          const RotatedBox(
+            quarterTurns: 1,
+            child: Text("-"),
+          ),
+          Text(
+            meta.formattedValue,
+            style: style,
+          ),
+        ],
       ),
     );
   }

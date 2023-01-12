@@ -1,17 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_dev_com_dashboard/reuseables/resuable_text.dart';
 
 class AssetChat extends StatelessWidget {
-  AssetChat(
+  final CustomText legendText;
+  final CustomText countText;
+  final String iconPath;
+
+  const AssetChat(
       {Key? key,
       required this.legendText,
       required this.countText,
       required this.iconPath})
       : super(key: key);
-  String legendText = "";
-  String countText = "";
-  String iconPath = "";
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +31,16 @@ class AssetChat extends StatelessWidget {
       width: cw,
       height: ch,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
         child: Material(
           elevation: 10,
           clipBehavior: Clip.hardEdge,
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(18.0),
           child: Stack(
             children: [
               Padding(
                 padding: const EdgeInsets.all(22.0),
-                child: Text(legendText),
+                child: legendText,
               ),
               Positioned.fill(
                 child: Align(
@@ -56,15 +58,8 @@ class AssetChat extends StatelessWidget {
               ),
               Positioned.fill(
                 child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    countText,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 30,
-                      letterSpacing: -2.5,
-                    ),
-                  ),
+                  alignment: Alignment.bottomCenter,
+                  child: countText
                 ),
               ),
               Image.asset(
