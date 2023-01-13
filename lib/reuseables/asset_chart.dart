@@ -7,11 +7,13 @@ class AssetChat extends StatelessWidget {
   final CustomText legendText;
   final CustomText countText;
   final String iconPath;
+  final String wavePath;
 
   const AssetChat(
       {Key? key,
       required this.legendText,
       required this.countText,
+      required this.wavePath,
       required this.iconPath})
       : super(key: key);
 
@@ -57,17 +59,10 @@ class AssetChat extends StatelessWidget {
                 ),
               ),
               Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: countText
-                ),
+                child:
+                    Align(alignment: Alignment.bottomCenter, child: countText),
               ),
-              Image.asset(
-                width: cw,
-                height: ch,
-                fit: BoxFit.fill,
-                "assets/icons/wave_graph.png",
-              ),
+              Image.asset(width: cw, height: ch, fit: BoxFit.fill, wavePath),
             ],
           ),
         ),

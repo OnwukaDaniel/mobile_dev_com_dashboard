@@ -11,7 +11,7 @@ class DataModel {
   String? employmentStatus;
   String? state;
   int? numberOfChildren;
-  String? occupation;
+  String occupation = "";
   String? id;
   String? dob;
   String? phoneNumber;
@@ -28,7 +28,7 @@ class DataModel {
   String? receivedBy;
 
   DataModel(
-      {this.ngoName,
+      this.ngoName,
       this.fullName,
       this.husbandOccupation,
       this.accountName,
@@ -52,7 +52,7 @@ class DataModel {
       this.categoryBasedOnNeeds,
       this.oneOrTwo,
       this.registrationDate,
-      this.receivedBy});
+      this.receivedBy);
 
   DataModel.fromJson(Map<String, dynamic> json) {
     ngoName = json['ngoName'];
@@ -65,7 +65,7 @@ class DataModel {
     employmentStatus = json['employmentStatus'];
     state = json['state'];
     numberOfChildren = json['numberOfChildren'];
-    occupation = json['occupation'];
+    occupation = json['occupation'] ?? "null";
     id = json['id'];
     dob = json['dob'];
     phoneNumber = json['phoneNumber'];

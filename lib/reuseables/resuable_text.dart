@@ -18,7 +18,7 @@ class CustomText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: padding,
-      child: Text(text, style: style),
+      child: Text(text, style: style, textAlign: TextAlign.center),
     );
   }
 }
