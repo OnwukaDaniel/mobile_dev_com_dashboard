@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
@@ -374,6 +375,7 @@ class _HomeState extends State<Home> {
       body: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
+          const LineChartSample2(),
           AssetChat(
             legendText: const CustomText(
               text: "TOTAL NUMBER OF WIDOWS REGISTERED",
@@ -602,5 +604,188 @@ class _HomeState extends State<Home> {
       return "60+";
     }
     return "";
+  }
+}
+
+class LineChartSample2 extends StatefulWidget {
+  const LineChartSample2({super.key});
+  @override
+  State<LineChartSample2> createState() => _LineChartSample2State();
+}
+
+class _LineChartSample2State extends State<LineChartSample2> {
+  List<Color> gradientColors = [
+    const Color(0xff5f29f8),
+    const Color(0xffa08ae1),
+    const Color(0xffffffff),
+  ];
+
+  List<int> get showIndexes => const [1, 2, 3, 4];
+
+  @override
+  Widget build(BuildContext context) {
+
+    final lineChartBarData = [
+      LineChartBarData(
+        showingIndicators: showIndexes,
+        color: const Color(0xff5f29f8),
+        spots: const [
+          FlSpot(0, 3),
+          FlSpot(2.6, 2),
+          FlSpot(4.9, 5),
+          FlSpot(6.8, 3.1),
+          FlSpot(8, 4),
+          FlSpot(9.5, 3),
+          FlSpot(11, 4),
+        ],
+        isCurved: false,
+        barWidth: 5,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+            show: true,
+            getDotPainter: (flSpot, value, lineChartBarData, value2) {
+              return FlDotCirclePainter(
+                radius: 3,
+                strokeWidth: 3,
+                strokeColor: const Color(0xff5f29f8),
+                color: Colors.white,
+              );
+            }),
+        belowBarData: BarAreaData(
+          show: true,
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: gradientColors),
+        ),
+      )
+    ];
+
+    final tooltipsOnBar = lineChartBarData[0];
+
+    return Stack(
+      children: <Widget>[
+        AspectRatio(
+          aspectRatio: 1.70,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+            child: LineChart(
+              LineChartData(
+                showingTooltipIndicators: showIndexes.map((index) {
+                  return ShowingTooltipIndicators([
+                    LineBarSpot(
+                      tooltipsOnBar,
+                      lineChartBarData.indexOf(tooltipsOnBar),
+                      tooltipsOnBar.spots[index],
+                    ),
+                  ]);
+                }).toList(),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: Colors.black,
+                    tooltipRoundedRadius: 8,
+                    getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
+                      return lineBarsSpot.map((lineBarSpot) {
+                        return LineTooltipItem(
+                          lineBarSpot.y.toString(),
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 1,
+                      getTitlesWidget: bottomTitleWidgets,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: leftTitleWidgets,
+                      reservedSize: 42,
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: 11,
+                minY: 0,
+                maxY: 6,
+                lineBarsData: lineChartBarData,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Color(0xff68737d),
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    );
+    Widget text;
+    switch (value.toInt()) {
+      case 2:
+        text = const Text('MAR', style: style);
+        break;
+      case 5:
+        text = const Text('JUN', style: style);
+        break;
+      case 8:
+        text = const Text('SEP', style: style);
+        break;
+      default:
+        text = const Text('', style: style);
+        break;
+    }
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: text,
+    );
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Color(0xff67727d),
+      fontWeight: FontWeight.bold,
+      fontSize: 15,
+    );
+    String text;
+    switch (value.toInt()) {
+      case 1:
+        text = '10K';
+        break;
+      case 3:
+        text = '30k';
+        break;
+      case 5:
+        text = '50k';
+        break;
+      default:
+        return Container();
+    }
+
+    return Text(text, style: style, textAlign: TextAlign.left);
   }
 }
