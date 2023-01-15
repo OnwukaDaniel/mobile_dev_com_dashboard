@@ -23,6 +23,17 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<DataModel> data = [];
+
+  bool show_me = false;
+
+  List<Color> gradientColors = [
+    const Color(0xff7948ff),
+    const Color(0xffa08ae1),
+    const Color(0xffffffff),
+  ];
+
+  List<int> showIndexes = [];
+
   final Color dark = const Color(0xff602bfa);
   final Color normal = const Color(0xff64caad);
   final Color light = const Color(0xfff2f2ff);
@@ -45,20 +56,24 @@ class _HomeState extends State<Home> {
   List<BarChartGroupData> barLga = [];
   List<BarChartGroupData> barOccupation = [];
   List<BarChartGroupData> barAgeAtBereavement = [];
+  List<LineChartBarData> lineChartBarData = [];
 
   List<String> lgaLegend = [];
   List<String> spouseBerLegend = [];
   List<String> occupationLegend = [];
+  List<String> widowYearsLegend = [];
 
   List<String> lgas = [];
   List<String> nogList = [];
   List<String> spouseBerList = [];
   List<String> occupationList = [];
   List<String> employmentStatList = [];
+  List<String> widowYearsList = [];
 
   Map<String, int> lgaMap = {};
   Map<String, int> empMap = {};
   Map<String, int> nogShipMap = {};
+  Map<String, int> widowYearsMap = {};
   Map<String, int> spouseBerMap = {};
   Map<String, int> occupationMap = {};
 
@@ -68,7 +83,10 @@ class _HomeState extends State<Home> {
   List<PieChartSectionData> ngoChartList = [];
   List<PieChartSectionData> empChartList = [];
 
+  List<FlSpot> widowYearsChartList = [];
+
   double localGovtMax = 1;
+  double widowYearsMax = 1;
   double occupationTypeMax = 1;
   double spouseBerMax = 1;
   int touchedIndex = -1;
@@ -78,7 +96,15 @@ class _HomeState extends State<Home> {
     final String response = await rootBundle.loadString("assets/data.json");
     List<dynamic> j = json.decode(response);
     data = j.map((e) => DataModel.fromJson(e as Map<String, dynamic>)).toList();
-    data.sort((a, b) => b.lga!.compareTo(a.lga!));
+    data.sort((a, b) {
+      var bList = b.husbandBereavementDate!.toLowerCase()
+          .replaceAll(",", "")
+          .split(" ");
+      var aList = a.husbandBereavementDate!.toLowerCase()
+          .replaceAll(",", "")
+          .split(" ");
+      return bList.last.compareTo(aList.last);
+    });
 
     for (DataModel x in data) {
       lgas.add(x.lga!);
@@ -87,9 +113,12 @@ class _HomeState extends State<Home> {
       var lonelyYears = smartDate(x.husbandBereavementDate!, x.dob!);
       spouseBerList.add(lonelyYears);
       occupationList.add(x.occupation);
+      var widowYears = widowTIme(x.husbandBereavementDate!);
+      widowYearsList.add(widowYears);
     }
 
     // SORT FOR SPOUSE BEREAVEMENT AGE RAGE (Important)
+    lgas.sort((a, b) => b.compareTo(a));
     spouseBerList.sort((a, b) => b.compareTo(a));
 
     lgaMap = lgas.fold<Map<String, int>>({}, (map, element) {
@@ -113,6 +142,11 @@ class _HomeState extends State<Home> {
     });
 
     occupationMap = occupationList.fold<Map<String, int>>({}, (map, element) {
+      map[element] = (map[element] ?? 0) + 1;
+      return map;
+    });
+
+    widowYearsMap = widowYearsList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
@@ -158,6 +192,7 @@ class _HomeState extends State<Home> {
     localGovtMax = lgaMap.values.toList().reduce(max).toDouble();
     spouseBerMax = spouseBerMap.values.toList().reduce(max).toDouble();
     occupationTypeMax = occupationMap.values.toList().reduce(max).toDouble();
+    widowYearsMax = widowYearsMap.values.toList().reduce(max).toDouble();
 
     for (String x in lgaMap.keys) {
       BarChartRodData rod = BarChartRodData(
@@ -219,7 +254,20 @@ class _HomeState extends State<Home> {
       occupationLegend.add(x);
     }
 
-    setState(() {});
+    for (String x in widowYearsMap.keys) {
+      var len = widowYearsChartList.length;
+      widowYearsChartList
+          .add(FlSpot((len + 2).toDouble(), widowYearsMap[x]!.toDouble()));
+      widowYearsLegend.add(x);
+    }
+
+    setState(() {
+      if (widowYearsChartList.isNotEmpty) {
+        show_me = true;
+      } else {
+        show_me = false;
+      }
+    });
   }
 
   @override
@@ -239,6 +287,37 @@ class _HomeState extends State<Home> {
 
     double cw = width * rootAspectRatio;
     double ch = cw / aspectRatio;
+
+    lineChartBarData.add(LineChartBarData(
+      show: show_me,
+      spots: widowYearsChartList,
+      showingIndicators: showIndexes,
+      color: const Color(0xff5f29f8),
+      isCurved: false,
+      barWidth: 4,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+          show: true,
+          getDotPainter: (flSpot, value, lineChartBarData, value2) {
+            return FlDotCirclePainter(
+              radius: 3,
+              strokeWidth: 3,
+              strokeColor: const Color(0xff5f29f8),
+              color: Colors.white,
+            );
+          }),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: gradientColors),
+      ),
+    ));
+
+    final tooltipsOnBar = lineChartBarData[0];
+    showIndexes
+        .addAll([for (var i = 0; i <= widowYearsChartList.length - 1; i++) i]);
 
     FlTitlesData ageAtBereavementTile = FlTitlesData(
       show: true,
@@ -371,11 +450,54 @@ class _HomeState extends State<Home> {
       ),
     );
 
+    FlTitlesData widowsTile = FlTitlesData(
+      show: true,
+      rightTitles: AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+      topTitles: AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: (double value, TitleMeta meta) {
+              const style = TextStyle(
+                color: Color(0xff68737d),
+                fontSize: 10,
+              );
+              var r =
+              [for (var i = 0; i <= widowYearsChartList.length; i++) i];
+
+              if(r.contains((value - 1).toInt())){
+                return SideTitleWidget(
+                  space: 4,
+                  axisSide: meta.axisSide,
+                  child: Column(
+                    children: [
+                      const RotatedBox(quarterTurns: 1, child: Text("- ")),
+                      Text(widowYearsLegend[(value).toInt() - 2], style:
+                      style),
+                    ],
+                  ),
+                );
+              } else {
+                return SideTitleWidget(
+                    axisSide: meta.axisSide, child: const Text(""));
+              }
+            }),
+      ),
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(showTitles: false),
+      ),
+    );
+
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
-          const LineChartSample2(),
           AssetChat(
             legendText: const CustomText(
               text: "TOTAL NUMBER OF WIDOWS REGISTERED",
@@ -470,6 +592,75 @@ class _HomeState extends State<Home> {
             ),
             employmentStaDataList: ngoChartList,
           ),
+          Material(
+            elevation: 10,
+            borderRadius: BorderRadius.circular(12.0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CustomText(
+                    text: "YEARS SPENT AS A WIDOW",
+                    padding: EdgeInsets.only(right: 16, left: 16, top: 20),
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(
+                    width: cw,
+                    height: ch,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: LineChart(
+                        LineChartData(
+                          showingTooltipIndicators: showIndexes.map((index) {
+                            return ShowingTooltipIndicators([
+                              LineBarSpot(
+                                tooltipsOnBar,
+                                lineChartBarData.indexOf(tooltipsOnBar),
+                                tooltipsOnBar.spots[index],
+                              ),
+                            ]);
+                          }).toList(),
+                          gridData: FlGridData(show: false),
+                          lineTouchData: LineTouchData(
+                            getTouchLineEnd: (data, index) => 0,
+                            getTouchedSpotIndicator:
+                                (barData, List<int> spotIndexes) {
+                              return spotIndexes.map((spotIndex) {}).toList();
+                            },
+                            enabled: false,
+                            touchTooltipData: LineTouchTooltipData(
+                              tooltipBgColor: const Color(0xff602bf8),
+                              tooltipRoundedRadius: 5,
+                              tooltipPadding: const EdgeInsets.all(4),
+                              getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
+                                return lineBarsSpot.map((lineBarSpot) {
+                                  return LineTooltipItem(
+                                    lineBarSpot.y.toInt().toString(),
+                                    const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  );
+                                }).toList();
+                              },
+                            ),
+                          ),
+                          titlesData: widowsTile,
+                          borderData: FlBorderData(show: false),
+                          minX: 2,
+                          maxX: (widowYearsChartList.length + 1).toDouble(),
+                          minY: 0,
+                          maxY: widowYearsMax * 2,
+                          lineBarsData: lineChartBarData,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Material(
@@ -557,6 +748,18 @@ class _HomeState extends State<Home> {
     show: false,
   );
 
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Color(0xff68737d),
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    );
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text(widowYearsLegend[value.toInt()], style: style),
+    );
+  }
+
   String smartDate(String input, String dob) {
     List<String> months = [
       "january",
@@ -605,187 +808,52 @@ class _HomeState extends State<Home> {
     }
     return "";
   }
-}
 
-class LineChartSample2 extends StatefulWidget {
-  const LineChartSample2({super.key});
-  @override
-  State<LineChartSample2> createState() => _LineChartSample2State();
-}
-
-class _LineChartSample2State extends State<LineChartSample2> {
-  List<Color> gradientColors = [
-    const Color(0xff5f29f8),
-    const Color(0xffa08ae1),
-    const Color(0xffffffff),
-  ];
-
-  List<int> get showIndexes => const [1, 2, 3, 4];
-
-  @override
-  Widget build(BuildContext context) {
-
-    final lineChartBarData = [
-      LineChartBarData(
-        showingIndicators: showIndexes,
-        color: const Color(0xff5f29f8),
-        spots: const [
-          FlSpot(0, 3),
-          FlSpot(2.6, 2),
-          FlSpot(4.9, 5),
-          FlSpot(6.8, 3.1),
-          FlSpot(8, 4),
-          FlSpot(9.5, 3),
-          FlSpot(11, 4),
-        ],
-        isCurved: false,
-        barWidth: 5,
-        isStrokeCapRound: true,
-        dotData: FlDotData(
-            show: true,
-            getDotPainter: (flSpot, value, lineChartBarData, value2) {
-              return FlDotCirclePainter(
-                radius: 3,
-                strokeWidth: 3,
-                strokeColor: const Color(0xff5f29f8),
-                color: Colors.white,
-              );
-            }),
-        belowBarData: BarAreaData(
-          show: true,
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: gradientColors),
-        ),
-      )
+  String widowTIme(String input) {
+    List<String> months = [
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
     ];
+    var now = DateTime.now();
+    var d = DateTime(now.year, now.month, now.day);
 
-    final tooltipsOnBar = lineChartBarData[0];
+    var list = input.toLowerCase().replaceAll(",", "").split(" ");
+    var year = int.parse(list.last);
+    var month = months.indexOf(list[1]);
+    var day = int.parse(list[0]);
+    var dateBereavement = DateTime(year, month, day);
+    var difference = d.difference(dateBereavement);
+    var lonelyYears = difference.inDays / 365;
 
-    return Stack(
-      children: <Widget>[
-        AspectRatio(
-          aspectRatio: 1.70,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            child: LineChart(
-              LineChartData(
-                showingTooltipIndicators: showIndexes.map((index) {
-                  return ShowingTooltipIndicators([
-                    LineBarSpot(
-                      tooltipsOnBar,
-                      lineChartBarData.indexOf(tooltipsOnBar),
-                      tooltipsOnBar.spots[index],
-                    ),
-                  ]);
-                }).toList(),
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    tooltipBgColor: Colors.black,
-                    tooltipRoundedRadius: 8,
-                    getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
-                      return lineBarsSpot.map((lineBarSpot) {
-                        return LineTooltipItem(
-                          lineBarSpot.y.toString(),
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  show: true,
-                  rightTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      interval: 1,
-                      getTitlesWidget: bottomTitleWidgets,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      getTitlesWidget: leftTitleWidgets,
-                      reservedSize: 42,
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                minX: 0,
-                maxX: 11,
-                minY: 0,
-                maxY: 6,
-                lineBarsData: lineChartBarData,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Color(0xff68737d),
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 2:
-        text = const Text('MAR', style: style);
-        break;
-      case 5:
-        text = const Text('JUN', style: style);
-        break;
-      case 8:
-        text = const Text('SEP', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
+    if (lonelyYears >= 1 && lonelyYears < 4) {
+      return "1-3";
+    } else if (lonelyYears >= 4 && lonelyYears < 7) {
+      return "4-7";
+    } else if (lonelyYears >= 7 && lonelyYears < 8) {
+      return "7-8";
+    } else if (lonelyYears >= 8 && lonelyYears < 11) {
+      return "7-8";
+    } else if (lonelyYears >= 11 && lonelyYears < 16) {
+      return "11-15";
+    } else if (lonelyYears >= 16 && lonelyYears < 21) {
+      return "16-20";
+    } else if (lonelyYears >= 21 && lonelyYears < 26) {
+      return "21-25";
+    } else if (lonelyYears >= 26 && lonelyYears < 30) {
+      return "26-29";
+    } else if (lonelyYears > 30) {
+      return "30+";
     }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
-  }
-
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Color(0xff67727d),
-      fontWeight: FontWeight.bold,
-      fontSize: 15,
-    );
-    String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '10K';
-        break;
-      case 3:
-        text = '30k';
-        break;
-      case 5:
-        text = '50k';
-        break;
-      default:
-        return Container();
-    }
-
-    return Text(text, style: style, textAlign: TextAlign.left);
+    return lonelyYears.toString();
   }
 }
