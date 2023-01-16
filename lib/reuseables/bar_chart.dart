@@ -33,9 +33,7 @@ class CustomBarChart extends StatelessWidget {
         width: width.toDouble(),
         height: 280,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.only(top: 16, right: 16),
           child: BarChart(
             BarChartData(
               alignment: alignment,
