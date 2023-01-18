@@ -3,25 +3,62 @@ import 'package:flutter/material.dart';
 import 'package:mobile_dev_com_dashboard/reuseables/pie_indicators.dart';
 import 'package:mobile_dev_com_dashboard/reuseables/resuable_text.dart';
 
-class CustomPieGraph extends StatelessWidget {
+class CustomPieGraph extends StatefulWidget {
   final List<PieIndicators> indicatorList;
   final CustomText legendText;
   final CustomText centerText;
   final double centerSpaceRadius;
   final List<PieChartSectionData> employmentStaDataList;
+  final double smallRadius;
+  final double largeRadius;
+  final Map<String, int> map;
+  final List<Color> sectionColor;
+  final List<PieChartSectionData> chartList;
 
-  const CustomPieGraph({
+  CustomPieGraph({
     Key? key,
     required this.indicatorList,
+    required this.smallRadius,
+    required this.largeRadius,
+    required this.chartList,
+    required this.employmentStaDataList,
+    required this.sectionColor,
     this.legendText = const CustomText(text: '',),
     this.centerText = const CustomText(text: '',),
     this.centerSpaceRadius = 0.0,
-    required this.employmentStaDataList,
+    this.map = const {},
   }) : super(key: key);
+
+  @override
+  State<CustomPieGraph> createState() => _CustomPieGraphState();
+}
+
+class _CustomPieGraphState extends State<CustomPieGraph> {
+  int touchedIndex = -1;
+  double radius = 0;
+  bool isTouched = false;
 
   @override
   Widget build(BuildContext context) {
     int width = MediaQuery.of(context).size.width.toInt();
+
+    widget.chartList.clear();
+    radius = width / 8;
+    var countNgo = 0;
+    for (String x in widget.map.keys) {
+      if(countNgo == touchedIndex){
+        radius = widget.largeRadius;
+      } else {
+        radius = widget.smallRadius;
+      }
+      widget.chartList.add(PieChartSectionData(
+        color: widget.sectionColor[countNgo],
+        showTitle: false,
+        value: (widget.map[x]!.toDouble() / widget.map.length) * 360,
+        radius: radius,
+      ));
+      countNgo++;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -31,7 +68,7 @@ class CustomPieGraph extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            legendText,
+            widget.legendText,
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,16 +81,30 @@ class CustomPieGraph extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Positioned(child: centerText),
+                        Positioned(child: widget.centerText),
                         PieChart(
                           PieChartData(
-                            centerSpaceRadius: centerSpaceRadius,
+                            pieTouchData: PieTouchData(
+                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      pieTouchResponse == null ||
+                                      pieTouchResponse.touchedSection == null) {
+                                    touchedIndex = -1;
+                                    return;
+                                  }
+                                  touchedIndex =
+                                      pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                });
+                              },
+                            ),
+                            centerSpaceRadius: widget.centerSpaceRadius,
                             startDegreeOffset: 180,
                             borderData: FlBorderData(
                               show: false,
                             ),
                             sectionsSpace: 1,
-                            sections: employmentStaDataList,
+                            sections: widget.employmentStaDataList,
                           ),
                         ),
                       ],
@@ -64,7 +115,7 @@ class CustomPieGraph extends StatelessWidget {
                   flex: 3,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: indicatorList,
+                    children: widget.indicatorList,
                   ),
                 ),
               ],

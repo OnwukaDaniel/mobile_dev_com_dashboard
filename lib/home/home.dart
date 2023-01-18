@@ -97,10 +97,12 @@ class _HomeState extends State<Home> {
     List<dynamic> j = json.decode(response);
     data = j.map((e) => DataModel.fromJson(e as Map<String, dynamic>)).toList();
     data.sort((a, b) {
-      var bList = b.husbandBereavementDate!.toLowerCase()
+      var bList = b.husbandBereavementDate!
+          .toLowerCase()
           .replaceAll(",", "")
           .split(" ");
-      var aList = a.husbandBereavementDate!.toLowerCase()
+      var aList = a.husbandBereavementDate!
+          .toLowerCase()
           .replaceAll(",", "")
           .split(" ");
       return bList.last.compareTo(aList.last);
@@ -150,44 +152,6 @@ class _HomeState extends State<Home> {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
-
-    var countNgo = 0;
-    for (String x in nogShipMap.keys) {
-      ngoChartList.add(PieChartSectionData(
-        color: ngoColor[countNgo],
-        showTitle: false,
-        value: (nogShipMap[x]!.toDouble() / nogShipMap.length) * 360,
-        radius: w / 8,
-      ));
-      nogInd.add(
-        PieIndicators(
-            textWidget: Text(
-              x,
-              style: const TextStyle(fontSize: 12, overflow: TextOverflow.clip),
-            ),
-            color: ngoColor[countNgo]),
-      );
-      countNgo++;
-    }
-
-    var countEmp = 0;
-    for (String x in empMap.keys) {
-      empChartList.add(PieChartSectionData(
-        color: empColor[countEmp],
-        showTitle: false,
-        value: (empMap[x]!.toDouble() / empMap.length) * 360,
-        radius: ((w / 8) - 50),
-      ));
-      empInd.add(
-        PieIndicators(
-            textWidget: Text(
-              x,
-              style: const TextStyle(fontSize: 12, overflow: TextOverflow.clip),
-            ),
-            color: empColor[countEmp]),
-      );
-      countEmp++;
-    }
 
     localGovtMax = lgaMap.values.toList().reduce(max).toDouble();
     spouseBerMax = spouseBerMap.values.toList().reduce(max).toDouble();
@@ -287,6 +251,32 @@ class _HomeState extends State<Home> {
 
     double cw = width * rootAspectRatio;
     double ch = cw / aspectRatio;
+
+    var countNgo = 0;
+    for (String x in nogShipMap.keys) {
+      nogInd.add(
+        PieIndicators(
+            textWidget: Text(
+              x,
+              style: const TextStyle(fontSize: 12, overflow: TextOverflow.clip),
+            ),
+            color: ngoColor[countNgo]),
+      );
+      countNgo++;
+    }
+
+    var countEmp = 0;
+    for (String x in empMap.keys) {
+      empInd.add(
+        PieIndicators(
+            textWidget: Text(
+              x,
+              style: const TextStyle(fontSize: 12, overflow: TextOverflow.clip),
+            ),
+            color: empColor[countEmp]),
+      );
+      countEmp++;
+    }
 
     lineChartBarData.add(LineChartBarData(
       show: show_me,
@@ -468,18 +458,16 @@ class _HomeState extends State<Home> {
                 color: Color(0xff68737d),
                 fontSize: 10,
               );
-              var r =
-              [for (var i = 0; i <= widowYearsChartList.length; i++) i];
+              var r = [for (var i = 0; i <= widowYearsChartList.length; i++) i];
 
-              if(r.contains((value - 1).toInt())){
+              if (r.contains((value - 1).toInt())) {
                 return SideTitleWidget(
                   space: 4,
                   axisSide: meta.axisSide,
                   child: Column(
                     children: [
                       const RotatedBox(quarterTurns: 1, child: Text("- ")),
-                      Text(widowYearsLegend[(value).toInt() - 2], style:
-                      style),
+                      Text(widowYearsLegend[(value).toInt() - 2], style: style),
                     ],
                   ),
                 );
@@ -498,6 +486,10 @@ class _HomeState extends State<Home> {
       body: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
+          SizedBox(
+              width: width.toDouble(),
+              height: 280,
+              child: const PieChartSample2()),
           SizedBox(
               width: width.toDouble(),
               height: 280,
@@ -568,23 +560,22 @@ class _HomeState extends State<Home> {
                             gridData: gridData,
                             borderData: borderData,
                             barTouchData: BarTouchData(
-                              enabled: true,
-                              handleBuiltInTouches: false,
-                              touchCallback: (event, barTouchResponse) {
-                                if (!event.isInterestedForInteractions ||
-                                    barTouchResponse == null ||
-                                    barTouchResponse.spot == null) {
-                                  print("object***************** ${event.isInterestedForInteractions}");
-                                  return;
-                                }
-                                final rodIndex = barTouchResponse.spot!
-                                    .touchedRodDataIndex;
-                                lgaTouchedIndex =
-                                    barTouchResponse.spot!
-                                        .touchedBarGroupIndex;
-                                print("object***************** $lgaTouchedIndex");
-                              }
-                              ),
+                                enabled: true,
+                                handleBuiltInTouches: true,
+                                allowTouchBarBackDraw: true,
+                                touchCallback: (event, barTouchResponse) {
+                                  if (!event.isInterestedForInteractions ||
+                                      barTouchResponse == null ||
+                                      barTouchResponse.spot == null) {
+                                    return;
+                                  }
+                                  final rodIndex = barTouchResponse
+                                      .spot!.touchedRodDataIndex;
+                                  lgaTouchedIndex = barTouchResponse
+                                      .spot!.touchedBarGroupIndex;
+                                  print(
+                                      "object***************** $lgaTouchedIndex");
+                                }),
                           ),
                         ),
                       ),
@@ -595,6 +586,11 @@ class _HomeState extends State<Home> {
             ),
           ),
           CustomPieGraph(
+            sectionColor: empColor,
+            chartList: empChartList,
+            smallRadius: (w / 8),
+            largeRadius: ((w / 8)) + 30.0,
+            map: empMap,
             centerSpaceRadius: 50,
             indicatorList: empInd,
             employmentStaDataList: empChartList,
@@ -605,6 +601,11 @@ class _HomeState extends State<Home> {
             ),
           ),
           CustomPieGraph(
+            sectionColor: ngoColor,
+            chartList: ngoChartList,
+            smallRadius: w / 8,
+            largeRadius: (w / 8) + 30,
+            map: nogShipMap,
             indicatorList: nogInd,
             legendText: const CustomText(
               text: "WIDOWS AFFILIATION TO NGO",
@@ -654,7 +655,8 @@ class _HomeState extends State<Home> {
                               tooltipBgColor: const Color(0xff602bf8),
                               tooltipRoundedRadius: 5,
                               tooltipPadding: const EdgeInsets.all(4),
-                              getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
+                              getTooltipItems:
+                                  (List<LineBarSpot> lineBarsSpot) {
                                 return lineBarsSpot.map((lineBarSpot) {
                                   return LineTooltipItem(
                                     lineBarSpot.y.toInt().toString(),
@@ -1015,12 +1017,12 @@ class BarChartSample5State extends State<BarChartSample5> {
   }
 
   BarChartGroupData generateGroup(
-      int x,
-      double value1,
-      double value2,
-      double value3,
-      double value4,
-      ) {
+    int x,
+    double value1,
+    double value2,
+    double value3,
+    double value4,
+  ) {
     final isTop = value1 > 0;
     final sum = value1 + value2 + value3 + value4;
     final isTouched = touchedIndex == x;
@@ -1034,13 +1036,13 @@ class BarChartSample5State extends State<BarChartSample5> {
           width: barWidth,
           borderRadius: isTop
               ? const BorderRadius.only(
-            topLeft: Radius.circular(6),
-            topRight: Radius.circular(6),
-          )
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(6),
+                )
               : const BorderRadius.only(
-            bottomLeft: Radius.circular(6),
-            bottomRight: Radius.circular(6),
-          ),
+                  bottomLeft: Radius.circular(6),
+                  bottomRight: Radius.circular(6),
+                ),
           rodStackItems: [
             BarChartRodStackItem(
               0,
@@ -1086,13 +1088,13 @@ class BarChartSample5State extends State<BarChartSample5> {
           color: Colors.transparent,
           borderRadius: isTop
               ? const BorderRadius.only(
-            bottomLeft: Radius.circular(6),
-            bottomRight: Radius.circular(6),
-          )
+                  bottomLeft: Radius.circular(6),
+                  bottomRight: Radius.circular(6),
+                )
               : const BorderRadius.only(
-            topLeft: Radius.circular(6),
-            topRight: Radius.circular(6),
-          ),
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(6),
+                ),
           rodStackItems: [
             BarChartRodStackItem(
               0,
@@ -1224,18 +1226,138 @@ class BarChartSample5State extends State<BarChartSample5> {
               barGroups: mainItems.entries
                   .map(
                     (e) => generateGroup(
-                  e.key,
-                  e.value[0],
-                  e.value[1],
-                  e.value[2],
-                  e.value[3],
-                ),
-              )
+                      e.key,
+                      e.value[0],
+                      e.value[1],
+                      e.value[2],
+                      e.value[3],
+                    ),
+                  )
                   .toList(),
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class PieChartSample2 extends StatefulWidget {
+  const PieChartSample2({super.key});
+
+  @override
+  State<StatefulWidget> createState() => PieChart2State();
+}
+
+class PieChart2State extends State {
+  int touchedIndex = -1;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1.3,
+      child: Card(
+        color: Colors.white,
+        child: Row(
+          children: <Widget>[
+            const SizedBox(
+              height: 18,
+            ),
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        setState(() {
+                          if (!event.isInterestedForInteractions ||
+                              pieTouchResponse == null ||
+                              pieTouchResponse.touchedSection == null) {
+                            touchedIndex = -1;
+                            return;
+                          }
+                          touchedIndex = pieTouchResponse
+                              .touchedSection!.touchedSectionIndex;
+                        });
+                      },
+                    ),
+                    borderData: FlBorderData(
+                      show: false,
+                    ),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 40,
+                    sections: showingSections(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 28,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> showingSections() {
+    return List.generate(4, (i) {
+      final isTouched = i == touchedIndex;
+      final fontSize = isTouched ? 25.0 : 16.0;
+      final radius = isTouched ? 60.0 : 50.0;
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: const Color(0xff0293ee),
+            value: 40,
+            title: '40%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+            ),
+          );
+        case 1:
+          return PieChartSectionData(
+            color: const Color(0xfff8b250),
+            value: 30,
+            title: '30%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+            ),
+          );
+        case 2:
+          return PieChartSectionData(
+            color: const Color(0xff845bef),
+            value: 15,
+            title: '15%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+            ),
+          );
+        case 3:
+          return PieChartSectionData(
+            color: const Color(0xff13d38e),
+            value: 15,
+            title: '15%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+            ),
+          );
+        default:
+          throw Error();
+      }
+    });
   }
 }
