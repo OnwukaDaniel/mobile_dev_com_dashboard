@@ -100,9 +100,7 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
                             ),
                             centerSpaceRadius: widget.centerSpaceRadius,
                             startDegreeOffset: 180,
-                            borderData: FlBorderData(
-                              show: false,
-                            ),
+                            borderData: FlBorderData(show: false),
                             sectionsSpace: 1,
                             sections: widget.employmentStaDataList,
                           ),

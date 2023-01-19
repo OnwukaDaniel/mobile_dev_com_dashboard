@@ -23,7 +23,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<DataModel> data = [];
-
   bool show_me = false;
 
   List<Color> gradientColors = [
@@ -54,8 +53,6 @@ class _HomeState extends State<Home> {
   ];
 
   List<BarChartGroupData> barLga = [];
-  List<BarChartGroupData> barOccupation = [];
-  List<BarChartGroupData> barAgeAtBereavement = [];
   List<LineChartBarData> lineChartBarData = [];
 
   List<String> lgaLegend = [];
@@ -154,8 +151,6 @@ class _HomeState extends State<Home> {
     });
 
     localGovtMax = lgaMap.values.toList().reduce(max).toDouble();
-    spouseBerMax = spouseBerMap.values.toList().reduce(max).toDouble();
-    occupationTypeMax = occupationMap.values.toList().reduce(max).toDouble();
     widowYearsMax = widowYearsMap.values.toList().reduce(max).toDouble();
 
     for (String x in lgaMap.keys) {
@@ -174,20 +169,6 @@ class _HomeState extends State<Home> {
     }
 
     for (String x in spouseBerMap.keys.toList().reversed) {
-      BarChartRodData rod = BarChartRodData(
-        width: 18,
-        toY: spouseBerMax + 50,
-        rodStackItems: [
-          BarChartRodStackItem(0, spouseBerMap[x]!.toDouble(), dark),
-          BarChartRodStackItem(
-              spouseBerMap[x]!.toDouble(), spouseBerMax + 50, light)
-        ],
-        borderRadius: BorderRadius.zero,
-      );
-      barAgeAtBereavement.add(
-        BarChartGroupData(
-            x: spouseBerLegend.length, barsSpace: 8, barRods: [rod]),
-      );
       var xx = "";
       if (x == "20") {
         xx = "<20";
@@ -198,23 +179,6 @@ class _HomeState extends State<Home> {
     }
 
     for (String x in occupationMap.keys) {
-      BarChartRodData rod = BarChartRodData(
-        width: 18,
-        toY: occupationTypeMax + 50,
-        rodStackItems: [
-          BarChartRodStackItem(0, occupationMap[x]!.toDouble(), dark),
-          BarChartRodStackItem(
-            occupationMap[x]!.toDouble(),
-            occupationTypeMax + 50,
-            light,
-          ),
-        ],
-        borderRadius: BorderRadius.zero,
-      );
-      barOccupation.add(
-        BarChartGroupData(
-            x: occupationLegend.length, barsSpace: 4, barRods: [rod]),
-      );
       occupationLegend.add(x);
     }
 
@@ -224,33 +188,6 @@ class _HomeState extends State<Home> {
           .add(FlSpot((len + 2).toDouble(), widowYearsMap[x]!.toDouble()));
       widowYearsLegend.add(x);
     }
-
-    setState(() {
-      if (widowYearsChartList.isNotEmpty) {
-        show_me = true;
-      } else {
-        show_me = false;
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    readJson();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    int width = MediaQuery.of(context).size.width.toInt();
-    int w = 360;
-    int h = 150;
-
-    double aspectRatio = w / h;
-    double rootAspectRatio = sqrt(aspectRatio);
-
-    double cw = width * rootAspectRatio;
-    double ch = cw / aspectRatio;
 
     var countNgo = 0;
     for (String x in nogShipMap.keys) {
@@ -277,6 +214,32 @@ class _HomeState extends State<Home> {
       );
       countEmp++;
     }
+
+    setState(() {
+      if (widowYearsChartList.isNotEmpty) {
+        show_me = true;
+      } else {
+        show_me = false;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    readJson();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int width = MediaQuery.of(context).size.width.toInt();
+    int w = 360;
+    int h = 150;
+    double aspectRatio = w / h;
+    double rootAspectRatio = sqrt(aspectRatio);
+
+    double cw = width * rootAspectRatio;
+    double ch = cw / aspectRatio;
 
     lineChartBarData.add(LineChartBarData(
       show: show_me,
@@ -486,14 +449,6 @@ class _HomeState extends State<Home> {
       body: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
-          SizedBox(
-              width: width.toDouble(),
-              height: 280,
-              child: const PieChartSample2()),
-          SizedBox(
-              width: width.toDouble(),
-              height: 280,
-              child: const BarChartSample5()),
           AssetChat(
             legendText: const CustomText(
               text: "TOTAL NUMBER OF WIDOWS REGISTERED",
@@ -563,19 +518,7 @@ class _HomeState extends State<Home> {
                                 enabled: true,
                                 handleBuiltInTouches: true,
                                 allowTouchBarBackDraw: true,
-                                touchCallback: (event, barTouchResponse) {
-                                  if (!event.isInterestedForInteractions ||
-                                      barTouchResponse == null ||
-                                      barTouchResponse.spot == null) {
-                                    return;
-                                  }
-                                  final rodIndex = barTouchResponse
-                                      .spot!.touchedRodDataIndex;
-                                  lgaTouchedIndex = barTouchResponse
-                                      .spot!.touchedBarGroupIndex;
-                                  print(
-                                      "object***************** $lgaTouchedIndex");
-                                }),
+                            ),
                           ),
                         ),
                       ),
@@ -589,7 +532,7 @@ class _HomeState extends State<Home> {
             sectionColor: empColor,
             chartList: empChartList,
             smallRadius: (w / 8),
-            largeRadius: ((w / 8)) + 30.0,
+            largeRadius: ((w / 8)) + 20.0,
             map: empMap,
             centerSpaceRadius: 50,
             indicatorList: empInd,
@@ -603,8 +546,8 @@ class _HomeState extends State<Home> {
           CustomPieGraph(
             sectionColor: ngoColor,
             chartList: ngoChartList,
-            smallRadius: w / 8,
-            largeRadius: (w / 8) + 30,
+            smallRadius: w / 8+ 20,
+            largeRadius: (w / 8) + 50,
             map: nogShipMap,
             indicatorList: nogInd,
             legendText: const CustomText(
@@ -715,11 +658,13 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   CustomBarChart(
+                    typeMax: spouseBerMax,
+                    smallWidth: 18,
+                    largeWidth: 18 + 10,
+                    map: spouseBerMap,
                     groupsSpace: 10,
                     gridData: gridData,
                     borderData: borderData,
-                    barGroups: barAgeAtBereavement,
-                    barTouchData: barTouchData,
                     titlesData: ageAtBereavementTile,
                     alignment: BarChartAlignment.spaceAround,
                   ),
@@ -741,11 +686,13 @@ class _HomeState extends State<Home> {
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   CustomBarChart(
+                    typeMax: occupationTypeMax,
+                    smallWidth: 18,
+                    largeWidth: 18 + 10,
+                    map: occupationMap,
                     groupsSpace: 10,
                     gridData: gridData,
                     borderData: borderData,
-                    barGroups: barOccupation,
-                    barTouchData: barTouchData,
                     titlesData: occupationTile,
                     alignment: BarChartAlignment.spaceAround,
                   ),
@@ -878,486 +825,5 @@ class _HomeState extends State<Home> {
       return "30+";
     }
     return lonelyYears.toString();
-  }
-}
-
-class BarChartSample5 extends StatefulWidget {
-  const BarChartSample5({super.key});
-
-  @override
-  State<StatefulWidget> createState() => BarChartSample5State();
-}
-
-class BarChartSample5State extends State<BarChartSample5> {
-  static const double barWidth = 22;
-  static const shadowOpacity = 0.2;
-  static const mainItems = <int, List<double>>{
-    0: [2, 3, 2.5, 8],
-    1: [-1.8, -2.7, -3, -6.5],
-    2: [1.5, 2, 3.5, 6],
-    3: [1.5, 1.5, 4, 6.5],
-    4: [-2, -2, -5, -9],
-    5: [-1.2, -1.5, -4.3, -10],
-    6: [1.2, 4.8, 5, 5],
-  };
-  int touchedIndex = -1;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Widget bottomTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 10);
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = 'Mon';
-        break;
-      case 1:
-        text = 'Tue';
-        break;
-      case 2:
-        text = 'Wed';
-        break;
-      case 3:
-        text = 'Thu';
-        break;
-      case 4:
-        text = 'Fri';
-        break;
-      case 5:
-        text = 'Sat';
-        break;
-      case 6:
-        text = 'Sun';
-        break;
-      default:
-        text = '';
-        break;
-    }
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text(text, style: style),
-    );
-  }
-
-  Widget topTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 10);
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = 'Mon';
-        break;
-      case 1:
-        text = 'Tue';
-        break;
-      case 2:
-        text = 'Wed';
-        break;
-      case 3:
-        text = 'Thu';
-        break;
-      case 4:
-        text = 'Fri';
-        break;
-      case 5:
-        text = 'Sat';
-        break;
-      case 6:
-        text = 'Sun';
-        break;
-      default:
-        return Container();
-    }
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text(text, style: style),
-    );
-  }
-
-  Widget leftTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 10);
-    String text;
-    if (value == 0) {
-      text = '0';
-    } else {
-      text = '${value.toInt()}0k';
-    }
-    return SideTitleWidget(
-      angle: 45,
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(
-        text,
-        style: style,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget rightTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 10);
-    String text;
-    if (value == 0) {
-      text = '0';
-    } else {
-      text = '${value.toInt()}0k';
-    }
-    return SideTitleWidget(
-      angle: 45,
-      axisSide: meta.axisSide,
-      space: 0,
-      child: Text(
-        text,
-        style: style,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  BarChartGroupData generateGroup(
-    int x,
-    double value1,
-    double value2,
-    double value3,
-    double value4,
-  ) {
-    final isTop = value1 > 0;
-    final sum = value1 + value2 + value3 + value4;
-    final isTouched = touchedIndex == x;
-    return BarChartGroupData(
-      x: x,
-      groupVertically: true,
-      showingTooltipIndicators: isTouched ? [0] : [],
-      barRods: [
-        BarChartRodData(
-          toY: sum,
-          width: barWidth,
-          borderRadius: isTop
-              ? const BorderRadius.only(
-                  topLeft: Radius.circular(6),
-                  topRight: Radius.circular(6),
-                )
-              : const BorderRadius.only(
-                  bottomLeft: Radius.circular(6),
-                  bottomRight: Radius.circular(6),
-                ),
-          rodStackItems: [
-            BarChartRodStackItem(
-              0,
-              value1,
-              const Color(0xff2bdb90),
-              BorderSide(
-                color: Colors.white,
-                width: isTouched ? 2 : 0,
-              ),
-            ),
-            BarChartRodStackItem(
-              value1,
-              value1 + value2,
-              const Color(0xffffdd80),
-              BorderSide(
-                color: Colors.white,
-                width: isTouched ? 2 : 0,
-              ),
-            ),
-            BarChartRodStackItem(
-              value1 + value2,
-              value1 + value2 + value3,
-              const Color(0xffff4d94),
-              BorderSide(
-                color: Colors.white,
-                width: isTouched ? 2 : 0,
-              ),
-            ),
-            BarChartRodStackItem(
-              value1 + value2 + value3,
-              value1 + value2 + value3 + value4,
-              const Color(0xff19bfff),
-              BorderSide(
-                color: Colors.white,
-                width: isTouched ? 2 : 0,
-              ),
-            ),
-          ],
-        ),
-        BarChartRodData(
-          toY: -sum,
-          width: barWidth,
-          color: Colors.transparent,
-          borderRadius: isTop
-              ? const BorderRadius.only(
-                  bottomLeft: Radius.circular(6),
-                  bottomRight: Radius.circular(6),
-                )
-              : const BorderRadius.only(
-                  topLeft: Radius.circular(6),
-                  topRight: Radius.circular(6),
-                ),
-          rodStackItems: [
-            BarChartRodStackItem(
-              0,
-              -value1,
-              const Color(0xff2bdb90)
-                  .withOpacity(isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
-            ),
-            BarChartRodStackItem(
-              -value1,
-              -(value1 + value2),
-              const Color(0xffffdd80)
-                  .withOpacity(isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
-            ),
-            BarChartRodStackItem(
-              -(value1 + value2),
-              -(value1 + value2 + value3),
-              const Color(0xffff4d94)
-                  .withOpacity(isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
-            ),
-            BarChartRodStackItem(
-              -(value1 + value2 + value3),
-              -(value1 + value2 + value3 + value4),
-              const Color(0xff19bfff)
-                  .withOpacity(isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  bool isShadowBar(int rodIndex) => rodIndex == 1;
-
-  @override
-  Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 0.8,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        color: const Color(0xff020227),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.center,
-              maxY: 20,
-              minY: -20,
-              groupsSpace: 12,
-              barTouchData: BarTouchData(
-                handleBuiltInTouches: false,
-                touchCallback: (FlTouchEvent event, barTouchResponse) {
-                  if (!event.isInterestedForInteractions ||
-                      barTouchResponse == null ||
-                      barTouchResponse.spot == null) {
-                    setState(() {
-                      touchedIndex = -1;
-                    });
-                    return;
-                  }
-                  final rodIndex = barTouchResponse.spot!.touchedRodDataIndex;
-                  if (isShadowBar(rodIndex)) {
-                    setState(() {
-                      touchedIndex = -1;
-                    });
-                    return;
-                  }
-                  setState(() {
-                    touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
-                  });
-                },
-              ),
-              titlesData: FlTitlesData(
-                show: true,
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 32,
-                    getTitlesWidget: topTitles,
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 32,
-                    getTitlesWidget: bottomTitles,
-                  ),
-                ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: leftTitles,
-                    interval: 5,
-                    reservedSize: 42,
-                  ),
-                ),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: rightTitles,
-                    interval: 5,
-                    reservedSize: 42,
-                  ),
-                ),
-              ),
-              gridData: FlGridData(
-                show: true,
-                checkToShowHorizontalLine: (value) => value % 5 == 0,
-                getDrawingHorizontalLine: (value) {
-                  if (value == 0) {
-                    return FlLine(
-                      color: const Color(0xff363753),
-                      strokeWidth: 3,
-                    );
-                  }
-                  return FlLine(
-                    color: const Color(0xff2a2747),
-                    strokeWidth: 0.8,
-                  );
-                },
-              ),
-              borderData: FlBorderData(
-                show: false,
-              ),
-              barGroups: mainItems.entries
-                  .map(
-                    (e) => generateGroup(
-                      e.key,
-                      e.value[0],
-                      e.value[1],
-                      e.value[2],
-                      e.value[3],
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class PieChartSample2 extends StatefulWidget {
-  const PieChartSample2({super.key});
-
-  @override
-  State<StatefulWidget> createState() => PieChart2State();
-}
-
-class PieChart2State extends State {
-  int touchedIndex = -1;
-
-  @override
-  Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.3,
-      child: Card(
-        color: Colors.white,
-        child: Row(
-          children: <Widget>[
-            const SizedBox(
-              height: 18,
-            ),
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: PieChart(
-                  PieChartData(
-                    pieTouchData: PieTouchData(
-                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                        setState(() {
-                          if (!event.isInterestedForInteractions ||
-                              pieTouchResponse == null ||
-                              pieTouchResponse.touchedSection == null) {
-                            touchedIndex = -1;
-                            return;
-                          }
-                          touchedIndex = pieTouchResponse
-                              .touchedSection!.touchedSectionIndex;
-                        });
-                      },
-                    ),
-                    borderData: FlBorderData(
-                      show: false,
-                    ),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 40,
-                    sections: showingSections(),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              width: 28,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<PieChartSectionData> showingSections() {
-    return List.generate(4, (i) {
-      final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 25.0 : 16.0;
-      final radius = isTouched ? 60.0 : 50.0;
-      switch (i) {
-        case 0:
-          return PieChartSectionData(
-            color: const Color(0xff0293ee),
-            value: 40,
-            title: '40%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-            ),
-          );
-        case 1:
-          return PieChartSectionData(
-            color: const Color(0xfff8b250),
-            value: 30,
-            title: '30%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-            ),
-          );
-        case 2:
-          return PieChartSectionData(
-            color: const Color(0xff845bef),
-            value: 15,
-            title: '15%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-            ),
-          );
-        case 3:
-          return PieChartSectionData(
-            color: const Color(0xff13d38e),
-            value: 15,
-            title: '15%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xffffffff),
-            ),
-          );
-        default:
-          throw Error();
-      }
-    });
   }
 }
