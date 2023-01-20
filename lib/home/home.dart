@@ -89,7 +89,6 @@ class _HomeState extends State<Home> {
   int lgaTouchedIndex = -1;
 
   Future<dynamic> readJson() async {
-    double w = window.physicalSize.width;
     final String response = await rootBundle.loadString("assets/data.json");
     List<dynamic> j = json.decode(response);
     data = j.map((e) => DataModel.fromJson(e as Map<String, dynamic>)).toList();
