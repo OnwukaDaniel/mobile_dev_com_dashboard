@@ -178,7 +178,7 @@ class _HomeState extends State<Home> {
     }
 
     for (String x in occupationMap.keys) {
-      occupationLegend.add(x);
+       occupationLegend.add(x);
     }
 
     for (String x in widowYearsMap.keys) {
