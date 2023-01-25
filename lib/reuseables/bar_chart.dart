@@ -55,11 +55,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
     for (String x in widget.map.keys) {
       if (count == touchedIndex) {
         barWidth = widget.largeWidth;
-        barHeight= widget.map[x]!.toDouble() + 200;
       } else {
         barWidth = widget.smallWidth;
-        barHeight= widget.map[x]!.toDouble();
       }
+      barHeight= widget.map[x]!.toDouble();
       BarChartRodData rod = BarChartRodData(
         width: barWidth,
         toY: typeMax + 50,
@@ -94,7 +93,16 @@ class _CustomBarChartState extends State<CustomBarChart> {
               gridData: widget.gridData,
               borderData: widget.borderData,
               barTouchData: BarTouchData(
-                touchTooltipData: BarTouchTooltipData(tooltipBgColor: Colors.white),
+                touchTooltipData: BarTouchTooltipData(
+                    fitInsideHorizontally: true,
+                    tooltipBgColor: Colors.white,
+                    getTooltipItem: (groupData, int1, rodData, int2){
+                      return BarTooltipItem(
+                          rodData.rodStackItems.first.toY.toString(),
+                          const TextStyle()
+                      );
+                    }
+                ),
                 handleBuiltInTouches: true,
                 allowTouchBarBackDraw: true,
                 touchCallback: (FlTouchEvent event, barTouchResponse) {

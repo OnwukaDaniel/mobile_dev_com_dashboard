@@ -111,7 +111,7 @@ class _HomeState extends State<Home> {
       var lonelyYears = smartDate(x.husbandBereavementDate!, x.dob!);
       spouseBerList.add(lonelyYears);
       occupationList.add(x.occupation);
-      var widowYears = widowTIme(x.husbandBereavementDate!);
+      var widowYears = widowTime(x.husbandBereavementDate!, x.registrationDate!);
       widowYearsList.add(widowYears);
     }
 
@@ -232,6 +232,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     int width = MediaQuery.of(context).size.width.toInt();
+    int touchedIndex = -1;
     int w = 360;
     int h = 150;
     double aspectRatio = w / h;
@@ -514,9 +515,32 @@ class _HomeState extends State<Home> {
                             gridData: gridData,
                             borderData: borderData,
                             barTouchData: BarTouchData(
-                                enabled: true,
-                                handleBuiltInTouches: true,
-                                allowTouchBarBackDraw: true,
+                              touchTooltipData: BarTouchTooltipData(
+                                  fitInsideHorizontally: true,
+                                  fitInsideVertically: true,
+                                  tooltipBgColor: Colors.white,
+                                  getTooltipItem: (groupData, int1, rodData, int2){
+                                    return BarTooltipItem(
+                                        rodData.rodStackItems.first.toY.toString(),
+                                        const TextStyle()
+                                    );
+                                  }
+                              ),
+                              handleBuiltInTouches: true,
+                              allowTouchBarBackDraw: true,
+                              touchCallback: (FlTouchEvent event, barTouchResponse) {
+                                if (!event.isInterestedForInteractions ||
+                                    barTouchResponse == null ||
+                                    barTouchResponse.spot == null) {
+                                  setState(() {
+                                    touchedIndex = -1;
+                                  });
+                                  return;
+                                }
+                                setState(() {
+                                  touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+                                });
+                              },
                             ),
                           ),
                         ),
@@ -778,7 +802,7 @@ class _HomeState extends State<Home> {
     return "";
   }
 
-  String widowTIme(String input) {
+  String widowTime(String input, String regDate) {
     List<String> months = [
       "january",
       "february",
@@ -793,8 +817,9 @@ class _HomeState extends State<Home> {
       "november",
       "december",
     ];
-    var now = DateTime.now();
-    var d = DateTime(now.year, now.month, now.day);
+    var regD = DateTime.parse(regDate);
+
+    var d = DateTime(regD.year, regD.month, regD.day);
 
     var list = input.toLowerCase().replaceAll(",", "").split(" ");
     var year = int.parse(list.last);
@@ -804,16 +829,16 @@ class _HomeState extends State<Home> {
     var difference = d.difference(dateBereavement);
     var lonelyYears = difference.inDays / 365;
 
-    if (lonelyYears >= 1 && lonelyYears < 4) {
-      return "1-3";
-    } else if (lonelyYears >= 4 && lonelyYears < 7) {
-      return "4-7";
-    } else if (lonelyYears >= 7 && lonelyYears < 8) {
-      return "7-8";
-    } else if (lonelyYears >= 8 && lonelyYears < 11) {
-      return "7-8";
-    } else if (lonelyYears >= 11 && lonelyYears < 16) {
-      return "11-15";
+    if (lonelyYears < 3) {
+      return "0-2";
+    } else if (lonelyYears >= 3 && lonelyYears < 6) {
+      return "3-5";
+    } else if (lonelyYears >= 6 && lonelyYears < 9) {
+      return "6-8";
+    } else if (lonelyYears >= 9 && lonelyYears < 12) {
+      return "9-11";
+    } else if (lonelyYears >= 12 && lonelyYears < 16) {
+      return "12-15";
     } else if (lonelyYears >= 16 && lonelyYears < 21) {
       return "16-20";
     } else if (lonelyYears >= 21 && lonelyYears < 26) {
