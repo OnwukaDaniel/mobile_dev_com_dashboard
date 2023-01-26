@@ -23,6 +23,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<DataModel> data = [];
+  List<int> showIndexes = [];
   bool show_me = false;
 
   List<Color> gradientColors = [
@@ -30,8 +31,6 @@ class _HomeState extends State<Home> {
     const Color(0xffa08ae1),
     const Color(0xffffffff),
   ];
-
-  List<int> showIndexes = [];
 
   final Color dark = const Color(0xff602bfa);
   final Color normal = const Color(0xff64caad);
@@ -202,7 +201,6 @@ class _HomeState extends State<Home> {
     }
 
     var countEmp = 0;
-
     for (String x in empMap.keys) {
       empInd.add(
         PieIndicators(
