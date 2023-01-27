@@ -15,7 +15,7 @@ class CustomPieGraph extends StatefulWidget {
   final List<Color> sectionColor;
   final List<PieChartSectionData> chartList;
 
-  CustomPieGraph({
+  const CustomPieGraph({
     Key? key,
     required this.indicatorList,
     required this.smallRadius,
@@ -23,8 +23,12 @@ class CustomPieGraph extends StatefulWidget {
     required this.chartList,
     required this.employmentStaDataList,
     required this.sectionColor,
-    this.legendText = const CustomText(text: '',),
-    this.centerText = const CustomText(text: '',),
+    this.legendText = const CustomText(
+      text: '',
+    ),
+    this.centerText = const CustomText(
+      text: '',
+    ),
     this.centerSpaceRadius = 0.0,
     this.map = const {},
   }) : super(key: key);
@@ -46,7 +50,8 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
     radius = width / 8;
     var countNgo = 0;
     for (String x in widget.map.keys) {
-      if(countNgo == touchedIndex){
+      var sectionValue = (widget.map[x]!.toDouble() / widget.map.length) * 360;
+      if (countNgo == touchedIndex) {
         radius = widget.largeRadius;
       } else {
         radius = widget.smallRadius;
@@ -56,6 +61,11 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
         showTitle: false,
         value: (widget.map[x]!.toDouble() / widget.map.length) * 360,
         radius: radius,
+        titleStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Color(0xffffffff),
+        ),
       ));
       countNgo++;
     }
@@ -85,7 +95,8 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
                         PieChart(
                           PieChartData(
                             pieTouchData: PieTouchData(
-                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                              touchCallback:
+                                  (FlTouchEvent event, pieTouchResponse) {
                                 setState(() {
                                   if (!event.isInterestedForInteractions ||
                                       pieTouchResponse == null ||
@@ -93,8 +104,8 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
                                     touchedIndex = -1;
                                     return;
                                   }
-                                  touchedIndex =
-                                      pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                  touchedIndex = pieTouchResponse
+                                      .touchedSection!.touchedSectionIndex;
                                 });
                               },
                             ),
