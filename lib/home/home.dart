@@ -32,9 +32,9 @@ class _HomeState extends State<Home> {
     const Color(0xffffffff),
   ];
 
-  final Color dark = const Color(0xff602bfa);
-  final Color normal = const Color(0xff64caad);
   final Color light = const Color(0xfff2f2ff);
+  final Color normal = const Color(0xff64caad);
+  final Color dark = const Color(0xff602bfa);
 
   final List<Color> ngoColor = [
     const Color(0xFFADA5C2),
