@@ -59,7 +59,7 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
       widget.chartList.add(PieChartSectionData(
         color: widget.sectionColor[countNgo],
         showTitle: false,
-        value: (widget.map[x]!.toDouble() / widget.map.length) * 360,
+        value: sectionValue,
         radius: radius,
         titleStyle: const TextStyle(
           fontSize: 16,
