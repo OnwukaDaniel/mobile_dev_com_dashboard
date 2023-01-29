@@ -49,6 +49,7 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
     widget.chartList.clear();
     radius = width / 8;
     var countNgo = 0;
+
     for (String x in widget.map.keys) {
       var sectionValue = (widget.map[x]!.toDouble() / widget.map.length) * 360;
       if (countNgo == touchedIndex) {
