@@ -45,7 +45,6 @@ class _CustomPieGraphState extends State<CustomPieGraph> {
   @override
   Widget build(BuildContext context) {
     int width = MediaQuery.of(context).size.width.toInt();
-
     widget.chartList.clear();
     radius = width / 8;
     var countNgo = 0;
