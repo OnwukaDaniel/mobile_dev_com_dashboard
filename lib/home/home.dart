@@ -13,6 +13,7 @@ import '../reuseables/bar_chart.dart';
 import '../reuseables/pie_chart.dart';
 import '../reuseables/pie_indicators.dart';
 import '../reuseables/resuable_text.dart';
+import '../reuseables/value_notifiers.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -91,6 +92,7 @@ class _HomeState extends State<Home> {
     final String response = await rootBundle.loadString("assets/data.json");
     List<dynamic> j = json.decode(response);
     data = j.map((e) => DataModel.fromJson(e as Map<String, dynamic>)).toList();
+    widowsCountVn.value = data.length;
     data.sort((a, b) {
       var bList = b.husbandBereavementDate!
           .toLowerCase()
@@ -110,7 +112,8 @@ class _HomeState extends State<Home> {
       var lonelyYears = smartDate(x.husbandBereavementDate!, x.dob!);
       spouseBerList.add(lonelyYears);
       occupationList.add(x.occupation);
-      var widowYears = widowTime(x.husbandBereavementDate!, x.registrationDate!);
+      var widowYears =
+          widowTime(x.husbandBereavementDate!, x.registrationDate!);
       widowYearsList.add(widowYears);
     }
 
@@ -122,26 +125,31 @@ class _HomeState extends State<Home> {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
+    lgaCountVn.value = lgaMap.length;
 
     nogShipMap = nogList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
+    ngoMapVn.value = nogShipMap;
 
     empMap = employmentStatList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
+    employmentMapVn.value = empMap;
 
     spouseBerMap = spouseBerList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
+    spouseBerDataVn.value = spouseBerMap;
 
     occupationMap = occupationList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
       return map;
     });
+    occupationDataVn.value = occupationMap;
 
     widowYearsMap = widowYearsList.fold<Map<String, int>>({}, (map, element) {
       map[element] = (map[element] ?? 0) + 1;
@@ -163,6 +171,7 @@ class _HomeState extends State<Home> {
       barLga.add(
         BarChartGroupData(x: lgaLegend.length, barsSpace: 4, barRods: [rod]),
       );
+      lgaGroupDataVn.value = barLga;
       lgaLegend.add(x);
     }
 
@@ -177,7 +186,7 @@ class _HomeState extends State<Home> {
     }
 
     for (String x in occupationMap.keys) {
-       occupationLegend.add(x);
+      occupationLegend.add(x);
     }
 
     for (String x in widowYearsMap.keys) {
@@ -229,6 +238,19 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void dispose() {
+    widowsCountVn.dispose();
+    lgaCountVn.dispose();
+    lgaGroupDataVn.dispose();
+    employmentMapVn.dispose();
+    ngoMapVn.dispose();
+    lineChartDataVn.dispose();
+    spouseBerDataVn.dispose();
+    occupationDataVn.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     int width = MediaQuery.of(context).size.width.toInt();
     int touchedIndex = -1;
@@ -266,6 +288,7 @@ class _HomeState extends State<Home> {
             colors: gradientColors),
       ),
     ));
+    lineChartDataVn.value = lineChartBarData;
 
     final tooltipsOnBar = lineChartBarData[0];
     showIndexes
@@ -361,9 +384,12 @@ class _HomeState extends State<Home> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: 85,
+          reservedSize: 90,
           getTitlesWidget: (double value, TitleMeta meta) {
-            const style = TextStyle(color: Colors.black, fontSize: 10);
+            const style = TextStyle(
+              color: Colors.black,
+              fontSize: 10,
+            );
             return SideTitleWidget(
               space: 36.0,
               axisSide: meta.axisSide,
@@ -444,43 +470,53 @@ class _HomeState extends State<Home> {
       ),
     );
 
-    return Scaffold(
-      body: ListView(
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(fontFamily: 'Rubik'),
+      home: ListView(
         padding: const EdgeInsets.all(12.0),
         children: [
-          AssetChat(
-            legendText: const CustomText(
-              text: "TOTAL NUMBER OF WIDOWS REGISTERED",
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            countText: CustomText(
-              text: "${data.length}",
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 30,
-                letterSpacing: -1.0,
-              ),
-              padding: EdgeInsets.only(bottom: ch / 4),
-            ),
-            iconPath: "assets/icons/people_icons.png",
-            wavePath: "assets/icons/wave_graph1.png",
+          ValueListenableBuilder(
+            builder: (context, int value, child) {
+              if(value == 0) return const SizedBox();
+              return AssetChat(
+                legendText: const CustomText(
+                  text: "TOTAL NUMBER OF WIDOWS REGISTERED",
+                ),
+                countText: CustomText(
+                  text: "$value",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 30,
+                  ),
+                  padding: EdgeInsets.only(bottom: ch / 4),
+                ),
+                iconPath: "assets/icons/people_icons.png",
+                wavePath: "assets/icons/wave_graph1.png",
+              );
+            },
+            valueListenable: widowsCountVn,
           ),
-          AssetChat(
-            legendText: const CustomText(
-              text: "SELECT LOCAL GOVERNMENT",
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            countText: CustomText(
-              text: "${lgaMap.length}",
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 30,
-                letterSpacing: -1.0,
-              ),
-              padding: EdgeInsets.only(bottom: ch / 4),
-            ),
-            iconPath: "assets/icons/healthy_community.png",
-            wavePath: "assets/icons/wave_graph.png",
+          ValueListenableBuilder(
+            builder: (context, int value, child) {
+              if(value == 0) return const SizedBox();
+              return AssetChat(
+                legendText: const CustomText(
+                  text: "SELECT LOCAL GOVERNMENT",
+                ),
+                countText: CustomText(
+                  text: "$value",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 30,
+                  ),
+                  padding: EdgeInsets.only(bottom: ch / 4),
+                ),
+                iconPath: "assets/icons/healthy_community.png",
+                wavePath: "assets/icons/wave_graph.png",
+              );
+            },
+            valueListenable: lgaCountVn,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -492,8 +528,7 @@ class _HomeState extends State<Home> {
                 children: [
                   const CustomText(
                     text: "WIDOWS REGISTERED BY LOCAL GOVERNMENT",
-                    padding: EdgeInsets.only(top: 34, right: 16, left: 16),
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                    padding: EdgeInsets.only(top: 34, right: 12, left: 12),
                   ),
                   SizedBox(
                     width: width.toDouble(),
@@ -505,43 +540,52 @@ class _HomeState extends State<Home> {
                       ),
                       child: RotatedBox(
                         quarterTurns: 1,
-                        child: BarChart(
-                          BarChartData(
-                            alignment: BarChartAlignment.center,
-                            groupsSpace: 8,
-                            barGroups: barLga,
-                            titlesData: lgaTile,
-                            gridData: gridData,
-                            borderData: borderData,
-                            barTouchData: BarTouchData(
-                              touchTooltipData: BarTouchTooltipData(
-                                  fitInsideHorizontally: true,
-                                  fitInsideVertically: true,
-                                  tooltipBgColor: Colors.white,
-                                  getTooltipItem: (groupData, int1, rodData, int2){
-                                    return BarTooltipItem(
-                                        rodData.rodStackItems.first.toY.toString(),
-                                        const TextStyle()
-                                    );
-                                  }
+                        child: ValueListenableBuilder(
+                          builder:
+                              (context, List<BarChartGroupData> value, child) {
+                                if(value.isEmpty) return const SizedBox();
+                            return BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.center,
+                                groupsSpace: 8,
+                                barGroups: value,
+                                titlesData: lgaTile,
+                                gridData: gridData,
+                                borderData: borderData,
+                                barTouchData: BarTouchData(
+                                  touchTooltipData: BarTouchTooltipData(
+                                      fitInsideHorizontally: true,
+                                      fitInsideVertically: true,
+                                      tooltipBgColor: Colors.white,
+                                      getTooltipItem:
+                                          (groupData, int1, rodData, int2) {
+                                        return BarTooltipItem(
+                                            rodData.rodStackItems.first.toY
+                                                .toString(),
+                                            const TextStyle());
+                                      }),
+                                  handleBuiltInTouches: true,
+                                  allowTouchBarBackDraw: true,
+                                  touchCallback:
+                                      (FlTouchEvent event, barTouchResponse) {
+                                    if (!event.isInterestedForInteractions ||
+                                        barTouchResponse == null ||
+                                        barTouchResponse.spot == null) {
+                                      setState(() {
+                                        touchedIndex = -1;
+                                      });
+                                      return;
+                                    }
+                                    setState(() {
+                                      touchedIndex = barTouchResponse
+                                          .spot!.touchedBarGroupIndex;
+                                    });
+                                  },
+                                ),
                               ),
-                              handleBuiltInTouches: true,
-                              allowTouchBarBackDraw: true,
-                              touchCallback: (FlTouchEvent event, barTouchResponse) {
-                                if (!event.isInterestedForInteractions ||
-                                    barTouchResponse == null ||
-                                    barTouchResponse.spot == null) {
-                                  setState(() {
-                                    touchedIndex = -1;
-                                  });
-                                  return;
-                                }
-                                setState(() {
-                                  touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
-                                });
-                              },
-                            ),
-                          ),
+                            );
+                          },
+                          valueListenable: lgaGroupDataVn,
                         ),
                       ),
                     ),
@@ -550,34 +594,44 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          CustomPieGraph(
-            sectionColor: empColor,
-            chartList: empChartList,
-            smallRadius: (w / 8),
-            largeRadius: ((w / 8)) + 20.0,
-            map: empMap,
-            centerSpaceRadius: 50,
-            indicatorList: empInd,
-            employmentStaDataList: empChartList,
-            centerText: const CustomText(
-              text: "WIDOWS\nEMPLOYMENT\n STATUS",
-              padding: EdgeInsets.only(right: 16, left: 16),
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
+          ValueListenableBuilder(
+            builder: (context, Map<String, int> value, child) {
+              if(value.isEmpty) return const SizedBox();
+              return CustomPieGraph(
+                sectionColor: empColor,
+                chartList: empChartList,
+                smallRadius: (w / 12),
+                largeRadius: ((w / 12)) + 20.0,
+                map: value,
+                centerSpaceRadius: 60,
+                indicatorList: empInd,
+                employmentStaDataList: empChartList,
+                centerText: const CustomText(
+                  text: "WIDOWS\nEMPLOYMENT\n STATUS",
+                  padding: EdgeInsets.only(right: 16, left: 16),
+                ),
+              );
+            },
+            valueListenable: employmentMapVn,
           ),
-          CustomPieGraph(
-            sectionColor: ngoColor,
-            chartList: ngoChartList,
-            smallRadius: w / 8+ 20,
-            largeRadius: (w / 8) + 50,
-            map: nogShipMap,
-            indicatorList: nogInd,
-            legendText: const CustomText(
-              text: "WIDOWS AFFILIATION TO NGO",
-              padding: EdgeInsets.only(top: 34, right: 16, left: 16),
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            employmentStaDataList: ngoChartList,
+          ValueListenableBuilder(
+            builder: (context, Map<String, int> value, child) {
+              if(value.isEmpty) return const SizedBox();
+              return CustomPieGraph(
+                sectionColor: ngoColor,
+                chartList: ngoChartList,
+                smallRadius: w / 8 + 20,
+                largeRadius: (w / 8) + 50,
+                map: value,
+                indicatorList: nogInd,
+                legendText: const CustomText(
+                  text: "WIDOWS AFFILIATION TO NGO",
+                  padding: EdgeInsets.only(top: 34, right: 16, left: 16),
+                ),
+                employmentStaDataList: ngoChartList,
+              );
+            },
+            valueListenable: ngoMapVn,
           ),
           Material(
             elevation: 10,
@@ -590,58 +644,67 @@ class _HomeState extends State<Home> {
                   const CustomText(
                     text: "YEARS SPENT AS A WIDOW",
                     padding: EdgeInsets.only(right: 16, left: 16, top: 20),
-                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   SizedBox(
                     width: cw,
                     height: ch,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                      child: LineChart(
-                        LineChartData(
-                          showingTooltipIndicators: showIndexes.map((index) {
-                            return ShowingTooltipIndicators([
-                              LineBarSpot(
-                                tooltipsOnBar,
-                                lineChartBarData.indexOf(tooltipsOnBar),
-                                tooltipsOnBar.spots[index],
+                      child: ValueListenableBuilder(
+                        builder:
+                            (context, List<LineChartBarData> value, child) {
+                          if(value.isEmpty) return const SizedBox();
+                          return LineChart(
+                            LineChartData(
+                              showingTooltipIndicators:
+                                  showIndexes.map((index) {
+                                return ShowingTooltipIndicators([
+                                  LineBarSpot(
+                                    tooltipsOnBar,
+                                    lineChartBarData.indexOf(tooltipsOnBar),
+                                    tooltipsOnBar.spots[index],
+                                  ),
+                                ]);
+                              }).toList(),
+                              gridData: FlGridData(show: false),
+                              lineTouchData: LineTouchData(
+                                getTouchLineEnd: (data, index) => 0,
+                                getTouchedSpotIndicator:
+                                    (barData, List<int> spotIndexes) {
+                                  return spotIndexes
+                                      .map((spotIndex) {})
+                                      .toList();
+                                },
+                                enabled: true,
+                                touchTooltipData: LineTouchTooltipData(
+                                  tooltipBgColor: const Color(0xff602bf8),
+                                  tooltipRoundedRadius: 5,
+                                  tooltipPadding: const EdgeInsets.all(4),
+                                  getTooltipItems:
+                                      (List<LineBarSpot> lineBarsSpot) {
+                                    return lineBarsSpot.map((lineBarSpot) {
+                                      return LineTooltipItem(
+                                        lineBarSpot.y.toInt().toString(),
+                                        const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      );
+                                    }).toList();
+                                  },
+                                ),
                               ),
-                            ]);
-                          }).toList(),
-                          gridData: FlGridData(show: false),
-                          lineTouchData: LineTouchData(
-                            getTouchLineEnd: (data, index) => 0,
-                            getTouchedSpotIndicator:
-                                (barData, List<int> spotIndexes) {
-                              return spotIndexes.map((spotIndex) {}).toList();
-                            },
-                            enabled: false,
-                            touchTooltipData: LineTouchTooltipData(
-                              tooltipBgColor: const Color(0xff602bf8),
-                              tooltipRoundedRadius: 5,
-                              tooltipPadding: const EdgeInsets.all(4),
-                              getTooltipItems:
-                                  (List<LineBarSpot> lineBarsSpot) {
-                                return lineBarsSpot.map((lineBarSpot) {
-                                  return LineTooltipItem(
-                                    lineBarSpot.y.toInt().toString(),
-                                    const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
-                                  );
-                                }).toList();
-                              },
+                              titlesData: widowsTile,
+                              borderData: FlBorderData(show: false),
+                              minX: 2,
+                              maxX: (widowYearsChartList.length + 1).toDouble(),
+                              minY: 0,
+                              maxY: widowYearsMax * 2,
+                              lineBarsData: value,
                             ),
-                          ),
-                          titlesData: widowsTile,
-                          borderData: FlBorderData(show: false),
-                          minX: 2,
-                          maxX: (widowYearsChartList.length + 1).toDouble(),
-                          minY: 0,
-                          maxY: widowYearsMax * 2,
-                          lineBarsData: lineChartBarData,
-                        ),
+                          );
+                        },
+                        valueListenable: lineChartDataVn,
                       ),
                     ),
                   ),
@@ -660,7 +723,6 @@ class _HomeState extends State<Home> {
                   const CustomText(
                     text: "WIDOWS AGE AT SPOUSE BEREAVEMENT",
                     padding: EdgeInsets.only(top: 34, right: 16, left: 16),
-                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 42.0, bottom: 8),
@@ -679,16 +741,22 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
-                  CustomBarChart(
-                    typeMax: spouseBerMax,
-                    smallWidth: 18,
-                    largeWidth: 18 + 10,
-                    map: spouseBerMap,
-                    groupsSpace: 10,
-                    gridData: gridData,
-                    borderData: borderData,
-                    titlesData: ageAtBereavementTile,
-                    alignment: BarChartAlignment.spaceAround,
+                  ValueListenableBuilder(
+                    builder: (context, Map<String, int> value, child) {
+                      if(value.isEmpty) return const SizedBox();
+                      return CustomBarChart(
+                        typeMax: spouseBerMax,
+                        smallWidth: 18,
+                        largeWidth: 18 + 10,
+                        map: value,
+                        groupsSpace: 10,
+                        gridData: gridData,
+                        borderData: borderData,
+                        titlesData: ageAtBereavementTile,
+                        alignment: BarChartAlignment.spaceAround,
+                      );
+                    },
+                    valueListenable: spouseBerDataVn,
                   ),
                 ],
               ),
@@ -705,19 +773,24 @@ class _HomeState extends State<Home> {
                   const CustomText(
                     text: "WIDOWS TYPE OF OCCUPATION",
                     padding: EdgeInsets.only(top: 34, right: 16, left: 16),
-                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  CustomBarChart(
-                    typeMax: occupationTypeMax,
-                    smallWidth: 18,
-                    largeWidth: 18 + 10,
-                    map: occupationMap,
-                    groupsSpace: 10,
-                    gridData: gridData,
-                    borderData: borderData,
-                    titlesData: occupationTile,
-                    alignment: BarChartAlignment.spaceAround,
-                  ),
+                  ValueListenableBuilder(
+                    builder: (context, Map<String, int> value, child) {
+                      if(value.isEmpty) return const SizedBox();
+                      return CustomBarChart(
+                        typeMax: occupationTypeMax,
+                        smallWidth: 18,
+                        largeWidth: 18 + 10,
+                        map: value,
+                        groupsSpace: 10,
+                        gridData: gridData,
+                        borderData: borderData,
+                        titlesData: occupationTile,
+                        alignment: BarChartAlignment.spaceAround,
+                      );
+                    },
+                    valueListenable: occupationDataVn,
+                  )
                 ],
               ),
             ),
@@ -818,13 +891,13 @@ class _HomeState extends State<Home> {
     ];
     var regD = DateTime.parse(regDate);
 
-    var d = DateTime(regD.year, regD.month, regD.day);
+    var d = DateTime(regD.year);
 
     var list = input.toLowerCase().replaceAll(",", "").split(" ");
     var year = int.parse(list.last);
     var month = months.indexOf(list[1]);
     var day = int.parse(list[0]);
-    var dateBereavement = DateTime(year, month, day);
+    var dateBereavement = DateTime(year);
     var difference = d.difference(dateBereavement);
     var lonelyYears = difference.inDays / 365;
 
