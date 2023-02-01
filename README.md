@@ -78,7 +78,7 @@ Pls take note of the grading system 🤠..stay jiggy
 
 
 
-<img src= https://user-images.githubusercontent.com/66129851/215867164-84571c41-3674-4efa-9296-c6a76bd475ac.jpg  width="200" height="200"> <img src= https://user-images.githubusercontent.com/66129851/215867808-cbac6055-4937-4bef-975a-ee6dbdc79301.jpg  width="200" height="200"> 
+<img src= https://user-images.githubusercontent.com/66129851/215867164-84571c41-3674-4efa-9296-c6a76bd475ac.jpg  width="200" height="200"> 
 <img src= https://user-images.githubusercontent.com/66129851/215867109-4b43cd4d-1cba-48b3-916b-f91e227566f3.jpg  width="200" height="200"> <img src= https://user-images.githubusercontent.com/66129851/215867132-655c4af6-07d5-459d-9a64-c838685b1ae7.jpg  width="200" height="200"> 
 
 ``` Line chart ```
