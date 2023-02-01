@@ -1,3 +1,4 @@
+![Screenshot_20230201-134151](https://user-images.githubusercontent.com/66129851/216054332-1fa03fd3-2eed-498f-9013-955b667f0cd5.jpg)
 # mobile_dev_com_dashboard
 
 Mobile dev dashboard project challenge.
