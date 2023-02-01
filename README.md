@@ -1,4 +1,4 @@
-![Screenshot_20230201-134151](https://user-images.githubusercontent.com/66129851/216054332-1fa03fd3-2eed-498f-9013-955b667f0cd5.jpg)
+
 # mobile_dev_com_dashboard
 
 Mobile dev dashboard project challenge.
@@ -86,6 +86,6 @@ Pls take note of the grading system 🤠..stay jiggy
 
 
 
-<img src= https://user-images.githubusercontent.com/66129851/215867206-ea12924c-65e9-4258-90b2-c11e5d63af91.jpg  width="200" height="200"> 
+<img src= https://user-images.githubusercontent.com/66129851/216054332-1fa03fd3-2eed-498f-9013-955b667f0cd5.jpg  width="200" height="200"> 
 
  
